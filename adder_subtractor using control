@@ -1,0 +1,57 @@
+////////              RTL CODE FOR ADDER AND SUBTRACTOR USING CONTROL         ///////////
+
+
+
+module adder_sub(a,b,c,sum,c_out);
+	input [3:0]a,b;
+	input c;
+	output [3:0]sum;
+	output c_out;
+	wire c0,c1,c2;
+	wire w1,w2,w3;
+	xor n1(w1,b[0],c);
+	xor n2(w2,b[1],c);
+	xor n3(w3,b[2],c);
+	xor n4(w4,b[3],c);
+	full_adder A1(a[0],w1,c,sum[0],c0);
+	full_adder A2(a[1],w2,c0,sum[1],c1);
+	full_adder A3(a[2],w3,c1,sum[2],c2);
+	full_adder A4(a[3],w4,c2,sum[3],c_out);
+endmodule
+
+	
+	/////////      TESTBENCH CODE FOR ADDER AND SUBTRACTOR USING CONTROL     //////////////
+
+
+
+module adder_sub_tb();
+	reg [3:0]a;
+	reg [3:0]b;
+	reg c;
+	wire [3:0]sum;
+	wire c_out;
+adder_sub DUT(a,b,c,sum,c_out);
+	initial 
+		begin
+			$monitor("input a=%b,b=%b,c=%b,output sum=%b,c_out=%b",a,b,c,sum,c_out);
+			a=4'b1010;
+			b=4'b1010;
+			c=1'b0;
+			#100;
+			a=4'b1010;
+			b=4'b1010;
+			c=1'b1;
+			#100;
+		end
+		initial 
+			begin
+			#200 $finish;
+			end
+endmodule
+
+
+
+
+
+ 
+
