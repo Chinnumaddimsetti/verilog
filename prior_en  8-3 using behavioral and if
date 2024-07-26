@@ -1,0 +1,100 @@
+////////////////////////////////////////////////////////////            PRIORITY ENCODER 8-3(USING BEHAVIOURAL MODEL AND IF /ELSE        ///////////////////////////////
+
+
+
+**************************************************************          RTL CODE             **********************************************
+
+
+
+
+module pri_en(input [7:0]i,output reg v,output reg [2:0]y);
+	always @(*)
+		begin
+
+				if(i[7])
+					begin 
+					y=3'b111;
+					v=1'b1;
+					end
+				else if (i[6])
+					begin
+					y=3'b110;
+					v=1'b1;
+					end
+					
+				else if (i[5])
+					begin
+					y=3'b101;
+					v=1'b1;
+					end
+				else if (i[4])
+					begin
+					y=3'b100;
+					v=1'b1;
+					end
+				else if (i[3])
+					begin
+					y=3'b011;
+					v=1'b1;
+					end
+				else if (i[2])
+					begin
+					y=3'b010;
+					v=1'b1;
+					end
+				else if (i[1])
+					begin
+					y=3'b001;
+					v=1'b1;
+					end
+				else if (i[0])
+					begin
+					y=3'b110;
+					v=1'b1;
+					end
+				else
+					begin 
+					y=3'b000;
+					v=1'b0;
+					end
+					
+			end
+endmodule
+
+
+
+
+
+*********************************************************              TB CODE               ***************************************************************
+
+
+
+module pri_en_tb();
+	reg [7:0]i;
+	wire v;
+	wire [2:0]y;
+	integer j;
+pri_en DUT(i,v,y);
+	task initialize;
+		{i}=0;
+	endtask
+	task t1;
+		begin 
+			for(j=0;j<256;j=j+1)
+				begin
+				{i}=j;
+				#10;
+				end
+		end
+		endtask
+	initial
+		begin
+		t1;
+		end
+	initial
+	$monitor("input i=%b,output v=%b,output y=%b",i,v,y);
+	initial
+	begin
+	#3000 $finish;
+	end
+endmodule
