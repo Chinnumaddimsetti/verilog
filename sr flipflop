@@ -1,0 +1,79 @@
+/////////////////////////////////////////////////////////////          SR FLIPFLOP      //////////////////////////////////////////////////////
+
+
+
+
+******************************************************************         RTL CODE      *******************************************************
+
+
+
+
+module rs_ff(input s,r,clk,rst,output reg q,output qb);
+	always@(posedge clk)
+	begin
+	    if (rst)
+		 begin
+		 q<=1'b0;
+		 end
+		 else 
+		 begin
+			case({s,r})
+				2'b00:q<=q;
+				2'b01:q<=1'b0;
+				2'b10:q<=1'b1;
+				2'b11:q<=1'bx;
+			endcase
+		end
+	end
+	assign qb=~q;
+endmodule
+
+
+
+
+***********************************************************   TB CODE        ********************************************************************
+
+
+
+
+module rs_ff_tb();
+	reg s,r,clk,rst;
+	wire q,qb;
+rs_ff DUT(s,r,clk,rst,q,qb);
+	initial
+	begin
+	clk=1'b0;
+	forever
+	#10 clk=~clk;
+	end
+	task reset();
+	begin
+	@(negedge clk);
+	rst=1'b1;
+	@(negedge clk);
+	rst=1'b0;
+	end
+	endtask
+	task t1(input m,n);
+	begin
+	@(posedge clk);
+	s=m;
+	r=n;
+	end
+	endtask
+	initial
+	begin
+	reset;
+	t1(1'b1,1'b0);
+	reset;
+	t1(1'b0,1'b1);
+	reset;
+	t1(1'b1,1'b1);
+	#10;
+	$finish;
+	end
+	initial
+	$monitor("inpur s=%b,r=%b,clk=%b,rst=%b,output q=%b,qb=%b",s,r,clk,rst,q,qb);
+endmodule
+
+	
