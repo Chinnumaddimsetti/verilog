@@ -1,0 +1,67 @@
+////////////////////////////////////////////////////////          mux8:1 using mux 4:1            ////////////////////////////////////////////////////
+
+
+
+
+**********************************************************************     RTL CODE      *************************************************************
+
+
+
+module mux8_1(
+    input a, b, c, d, e, f, g, h,
+    input s1, s2, s3,
+    output y
+);
+    wire w1, w2;
+
+    mux4_1 mux1(a, b, c, d, s1, s2, w1);
+    mux4_1 mux2(e, f, g, h, s1, s2, w2);
+    mux4_1 mux3(w1, w2, 1'b0, 1'b0, s3, 1'b0, y);
+endmodule
+
+
+
+
+*******************************************************************     TB CODE      *******************************************************************
+
+
+
+
+module tb_mux8_1;
+  reg a, b, c, d, e, f, g, h;
+  reg s0, s1, s2;
+  wire y;
+
+  mux8_1 uut (
+    a, b, c, d, e, f, g, h, s0, s1, s2, y
+  );
+
+  task apply_inputs(
+    input reg ta, tb, tc, td, te, tf, tg, th,
+    input reg ts0, ts1, ts2
+  );
+    begin
+      a = ta; b = tb; c = tc; d = td;
+      e = te; f = tf; g = tg; h = th;
+      s0 = ts0; s1 = ts1; s2 = ts2;
+      #10;
+    end
+  endtask
+
+  initial begin
+    $monitor("a=%b, b=%b, c=%b, d=%b, e=%b, f=%b, g=%b, h=%b, s2s1s0=%b%b%b, y=%b", 
+             a, b, c, d, e, f, g, h, s2, s1, s0, y);
+
+    apply_inputs(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    apply_inputs(0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0);
+    apply_inputs(0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0);
+    apply_inputs(0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0);
+    apply_inputs(0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1);
+    apply_inputs(0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1);
+    apply_inputs(0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1);
+    apply_inputs(0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1);
+   
+    #10; // Wait a bit to ensure last output is captured
+    $finish;
+  end
+endmodule
