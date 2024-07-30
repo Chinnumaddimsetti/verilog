@@ -1,0 +1,125 @@
+/////////////////////////////////////////////////////////            counter up/dowm using enable       ////////////////////////////////////////
+
+
+
+
+**************************************************************     RTL CODE     ***********************************************************
+
+
+
+module updowncounter (
+    input clk,rst,load,mode,enable,
+    input  [3:0] data_in,
+    output reg [3:0] count
+);
+
+    always @(posedge clk ) begin
+        if (rst) begin
+            count <= 4'b0000;
+        end else if (load) begin
+            count <= data_in;
+        end else if (enable) begin
+            if (mode) begin
+                count <= count + 1;
+            end else begin
+                count <= count - 1;
+            end
+        end
+    end
+
+endmodule
+
+
+
+
+
+***********************************************************************   TB CODE     *********************************************************************
+
+
+
+module updowncounter_tb();
+
+    reg clk, rst, load, mode, enable;
+    reg [3:0] data_in;
+    wire [3:0] count;
+    
+    updowncounter DUT (
+        .clk(clk),
+        .rst(rst),
+        .load(load),
+        .mode(mode),
+        .enable(enable),
+        .data_in(data_in),
+        .count(count)
+    );
+    
+    initial begin
+        clk = 1'b0;
+        forever #10 clk = ~clk;
+    end
+    
+    task rst_DUT();
+    begin
+        @(negedge clk);
+        rst = 1'b1;
+        @(negedge clk);
+        rst = 1'b0;
+    end
+    endtask
+    
+    task t1(input [3:0] m);
+    begin
+        @(negedge clk);
+        data_in = m;
+    end
+    endtask
+
+    task t2(input load_val, input enable_val);
+    begin
+        @(negedge clk);
+        load = load_val;
+        enable = enable_val;
+    end
+    endtask
+    
+    task t3(input mode_val);
+    begin
+        @(negedge clk);
+        mode = mode_val;
+    end
+    endtask
+    
+    initial begin
+        rst = 1'b0;
+        load = 1'b0;
+        enable = 1'b0;
+        mode = 1'b0;
+        
+        rst_DUT();
+        
+        #20;
+        t1(4'b0101);
+        t2(1'b1, 1'b1);
+        t3(1'b1);
+        #30;
+        t2(1'b0, 1'b1);
+        #30;
+        t3(1'b0);
+        #30;
+        t1(4'b1001);
+        t2(1'b1, 1'b1);
+        t3(1'b1);
+        #30;
+        t2(1'b0, 1'b1);
+        #30;
+        
+        #100;
+        $finish;
+    end
+    
+    initial begin
+        $monitor("input clk = %b, rst = %b, load = %b, mode = %b, enable = %b, input data_in = %b, output count = %b",
+                 clk, rst, load, mode, enable, data_in, count);
+    end
+
+endmodule
