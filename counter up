@@ -1,0 +1,91 @@
+///////////////////////////////////////////////////////////////////////////          counter up      ////////////////////////////////////////////////////////////////////////////
+
+
+
+***********************************************           RTL CODE         *******************************************************
+
+
+
+module counter_up(input [3:0]d,input clk,rst,load,output reg [3:0]y);
+always@ (posedge clk)
+	begin
+	if(rst)
+		y<=4'b0;
+	else if (load)
+		y<=d;
+	else
+	   y<=y+1'b1;
+	end
+endmodule
+
+
+
+
+
+************************************************        TB CODE      *******************************************************************
+
+
+
+
+module counter_up_tb();
+    reg [3:0] d;
+    reg clk, rst, load;
+    wire [3:0] y;
+
+    counter_up DUT (
+        .d(d),
+        .clk(clk),
+        .rst(rst),
+        .load(load),
+        .y(y)
+    );
+
+    initial begin
+        clk = 1'b0;
+        forever #10 clk = ~clk;
+    end
+
+    task reset();
+        begin
+            @(negedge clk);
+            rst = 1'b1;
+            @(negedge clk);
+            rst = 1'b0;
+        end
+    endtask 
+
+    task l(input n);
+        begin
+            @(negedge clk);
+            load = n;
+        end
+    endtask
+
+    task din(input [3:0] m);
+        begin
+            @(negedge clk);
+            d = m;
+        end
+    endtask
+
+    initial begin
+        reset;
+        din(4'b0010);
+        l(1'b1);
+        #30;
+        l(1'b0);
+        #20;
+    end
+
+    initial begin
+        $monitor("time=%0t | d=%b | clk=%b | load=%b | rst=%b | y=%b", $time, d, clk, load, rst, y);
+    end
+
+    initial begin
+        #300 $finish;
+    end
+endmodule
+
+
+
+
