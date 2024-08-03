@@ -1,0 +1,96 @@
+//////////////////////////////////////////////////////////////////////////          ASYNCHORONOUS SISO          //////////////////////////////////////////////////////////////////////
+
+
+
+***********************************************************************         RTL CODE       ************************************************************************
+
+
+
+module siso(input [3:0]i,input clk,clr,preset,output  [3:0]y);
+	 reg [3:0]w1,w2,w3,w4;
+	always@(posedge clk or posedge clr or posedge preset)
+		begin
+			if(clr) 
+			begin
+				w1 <= 4'b0000;
+            w2 <= 4'b0000;
+            w3 <= 4'b0000;
+				w4 <= 4'b0000; 
+			end
+			else if(preset) 
+			begin
+			   w1 <= 4'b1111;
+            w2 <= 4'b1111;
+            w3 <= 4'b1111;
+				w4 <= 4'b1111; 
+			end
+			else  
+			begin
+				w1<=i;
+				w2<=w1;
+				w3<=w2;
+				w4<=w3; 
+			end
+		end
+	assign y=w4;
+endmodule
+
+
+
+*************************************************************     TB CODE    *****************************************************************************************
+
+
+
+
+module siso_tb();
+    reg [3:0] i;
+    reg clk, clr, preset;
+    wire [3:0] y;
+
+    siso DUT (
+        .i(i),
+        .clk(clk),
+        .clr(clr),
+        .preset(preset),
+        .y(y)
+    );
+
+    initial begin
+        clk = 0;
+        forever #5 clk = ~clk;
+    end
+
+    task t1(input [3:0] m);
+        begin
+            @(negedge clk)
+                i = m;
+        end
+    endtask
+
+    initial begin
+        i = 4'b0000;
+        clr = 0;
+        preset = 0;
+
+        clr = 1;
+		  #10;
+        clr = 0;
+		  #10;
+
+        preset = 1;
+		  #10;
+        preset = 0;
+		  #10;
+
+        t1(4'b1011);
+        #10;
+        
+        #1000 $finish;
+    end
+
+    initial begin
+        $monitor("Time=%0t | input i=%b | clk=%b | clr=%b | preset=%b | output y=%b",
+                 $time, i, clk, clr, preset, y);
+    end
+
+endmodule
