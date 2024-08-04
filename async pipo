@@ -1,0 +1,101 @@
+////////////////////////////////////////////////////      Async  Pipo   /////////////////////////////////////////////////////
+
+
+*********************************************************         RTL CODE     ******************************************************************
+
+
+module pipo (
+    input i1, i2, i3, i4,
+    input clk,
+    input clr,
+    input preset,
+    output reg y1, y2, y3, y4
+);
+
+    always @(posedge clk or posedge clr or posedge preset) begin
+        if (clr) begin
+            y1 <= 0;
+            y2 <= 0;
+            y3 <= 0;
+            y4 <= 0;
+        end else if (preset) begin
+            y1 <= 1;
+            y2 <= 1;
+            y3 <= 1;
+            y4 <= 1;
+        end else begin
+            y1 <= i1;
+            y2 <= i2;
+            y3 <= i3;
+            y4 <= i4;
+        end
+    end
+
+endmodule
+
+
+
+
+***********************************************     TB CODE    ***********************************************************
+
+
+module pipo_tb();
+	reg i1,i2,i3,i4;
+	reg clk,clr,preset;
+	wire y1,y2,y3,y4;
+pipo DUT(i1,i2,i3,i4,clk,clr,preset,y1,y2,y3,y4);
+	initial
+		begin
+			clk=0;
+			forever #10
+			clk=~clk;
+		end
+	task initialize;
+		begin
+			{i1,i2,i3,i4,clr,preset}=0;
+		end
+	endtask
+	task reset();
+		begin
+		
+			clr=1'b1;
+			#2
+			clr=1'b0;
+		end
+	endtask
+	task set();
+		begin
+			preset=1'b1;
+			#2
+			preset=1'b0;
+		end
+	endtask
+	task t1(input a,b,c,d);
+		begin
+		@(negedge clk)
+		i1=a;
+		i2=b;
+		i3=c;
+		i4=d;
+		end
+	endtask
+	initial
+	begin
+		initialize;
+		reset;
+		set;
+		t1(1,1,0,1);
+		t1(1,0,1,1);
+		t1(1,1,1,1);
+	end
+	initial
+		        $monitor("Time=%0t | input i1=%b | i2=%b | i3=%b | i4=%b | clk=%b | clr=%b | preset=%b | output y1=%b | y2=%b | y3=%b | y4=%b | ",
+                 $time, i1,i2,i3,i4, clk, clr, preset, y1,y2,y3,y4);
+   initial
+	begin 
+	#1000 $finish;
+	end
+endmodule
+
+		
+			
