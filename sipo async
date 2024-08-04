@@ -1,0 +1,112 @@
+*******************************************************************           SIPO ASYNCH             ***********************************************************************
+
+
+////////////////////////////////////////////////////////////////////////////           RTL CODE      ///////////////////////////////////////////////////////////////////////////////
+
+
+
+
+module sipo(input i,input clk,clr,preset,output y0,y1,y2,y3);
+   reg w1,w2,w3,w4;
+	always@(posedge clk or posedge clr or posedge preset)
+		begin
+		if(clr)
+			begin
+				w1<=0;
+				w2<=0;
+				w3<=0;
+				w4<=0;
+			end
+		else if(preset)
+			begin 
+				w1<=1;
+				w2<=1;
+				w3<=1;
+				w4<=1;
+			end
+		else
+			begin
+				w1<=i;
+				w2<=w1;
+				w3<=w2;
+				w4<=w3; 
+			end
+		end
+	assign y0=w1;
+	assign y1=w2;
+	assign y2=w3;
+	assign y3=w4;
+	
+endmodule
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////          TBCODE               ///////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+module sipo_tb();
+	reg i;
+	reg clk,clr,preset;
+	wire y0,y1,y2,y3;
+sipo DUT(i,clk,clr,preset,y0,y1,y2,y3);
+	initial 
+		begin
+			clk=0;
+			forever #10 clk=~clk;
+		end
+		task initialize;
+			begin
+				i=0;
+				clr=0;
+				preset=0;
+			end
+		endtask
+		task rst();
+			begin
+				@(negedge clk);
+				clr=1'b1;
+				@(negedge clk);
+				clr=1'b0;
+			end
+		endtask
+		task set();
+			begin
+				@(negedge clk);
+				preset=1'b1;
+				@(negedge clk);
+				preset=1'b0;
+			end
+		endtask
+				
+		
+	task t1(input m);
+		begin
+			@(negedge clk); 
+			i=m;
+		end
+	endtask
+	initial 
+		begin
+		initialize;
+		rst;
+		#20;
+		set;
+		#20; 
+		t1(1);
+		#20;
+		end
+	initial
+	$monitor("input i=%b,input clk=%b,clr=%b,preset=%b,output y0=%b,y1=%b,y2=%b,y3=%b",i,clk,clr,preset,y0,y1,y2,y3);
+	initial
+		begin
+		#1000 $finish;
+		end
+endmodule
