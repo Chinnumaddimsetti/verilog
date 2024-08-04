@@ -97,9 +97,10 @@ sipo DUT(i,clk,clr,preset,y0,y1,y2,y3);
 		begin
 		initialize;
 		rst;
-		#20;
 		set;
-		#20; 
+		t1(1);
+		t1(1);
+		t1(0);
 		t1(1);
 		#20;
 		end
