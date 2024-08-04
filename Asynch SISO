@@ -5,24 +5,23 @@
 ***********************************************************************         RTL CODE       ************************************************************************
 
 
-
-module siso(input [3:0]i,input clk,clr,preset,output  [3:0]y);
-	 reg [3:0]w1,w2,w3,w4;
+module siso(input i,input clk,clr,preset,output y );
+	 reg w1,w2,w3,w4;
 	always@(posedge clk or posedge clr or posedge preset)
 		begin
 			if(clr) 
 			begin
-				w1 <= 4'b0000;
-            w2 <= 4'b0000;
-            w3 <= 4'b0000;
-				w4 <= 4'b0000; 
+				w1 <= 0;
+            w2 <= 0;
+            w3 <= 0;
+				w4 <= 0; 
 			end
 			else if(preset) 
 			begin
-			   w1 <= 4'b1111;
-            w2 <= 4'b1111;
-            w3 <= 4'b1111;
-				w4 <= 4'b1111; 
+			   w1 <= 1;
+            w2 <= 1;
+            w3 <= 1;
+				w4 <= 1; 
 			end
 			else  
 			begin
@@ -41,11 +40,10 @@ endmodule
 
 
 
-
 module siso_tb();
-    reg [3:0] i;
+    reg i;
     reg clk, clr, preset;
-    wire [3:0] y;
+    wire y;
 
     siso DUT (
         .i(i),
@@ -60,32 +58,50 @@ module siso_tb();
         forever #5 clk = ~clk;
     end
 
-    task t1(input [3:0] m);
+    task t1(input m);
         begin
             @(negedge clk)
                 i = m;
         end
     endtask
+	 task initialize;
+			begin
+				i=0;
+				clr=0;
+				preset=0;
+			end
+		endtask
+		task rst();
+			begin
+				clr=1'b1;
+				#2
+				clr=1'b0;
+			end
+		endtask
+		task set();
+			begin
+				preset=1'b1;
+				#2
+				preset=1'b0;
+			end
+		endtask
 
     initial begin
-        i = 4'b0000;
-        clr = 0;
-        preset = 0;
+		initialize;
+		rst;
+		set;
 
-        clr = 1;
-		  #10;
-        clr = 0;
-		  #10;
-
-        preset = 1;
-		  #10;
-        preset = 0;
-		  #10;
-
-        t1(4'b1011);
-        #10;
+      t1(1);
+		t1(0);
+		t1(1);
+		t1(0);
+		t1(0);
+		t1(0);
+		t1(1);
+		t1(1);
+		
         
-        #1000 $finish;
+        #1000 $finish; 
     end
 
     initial begin
@@ -94,3 +110,4 @@ module siso_tb();
     end
 
 endmodule
+
