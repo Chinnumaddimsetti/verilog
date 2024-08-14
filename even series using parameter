@@ -1,0 +1,56 @@
+////////////////////////////////////////////////////////////////////          even series using parameter           /////////////////////////////////////////////
+
+
+***********************************************************       RTL CODE    ************************************************************
+
+
+module even_number_series #(parameter N = 10)(
+    input clk,
+    input rst,
+    output reg [31:0] even_out
+);
+    reg [5:0] count;
+    
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            count <= 4'd0;
+            even_out <= 32'd0;
+        end else begin
+            if (count < N) begin
+                even_out <= even_out + 32'd2;
+                count <= count + 6'd1;
+            end
+        end
+    end
+endmodule
+
+
+*********************************************************    TB CODE    ********************************************************
+
+
+module tb_even_number_series;
+
+    reg clk;
+    reg rst;
+    wire [31:0] even_out;
+
+    even_number_series #(30) uut (
+        .clk(clk),
+        .rst(rst),
+        .even_out(even_out)
+    );
+
+    initial begin
+        clk = 0;
+        rst = 1;
+        #5 rst = 0;
+        #200 $stop; 
+    end
+
+    always #5 clk = ~clk;
+
+    initial begin
+        $monitor("Time: %0t | Even Output: %0d", $time, even_out);
+    end
+
+endmodule
