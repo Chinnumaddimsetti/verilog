@@ -1,0 +1,72 @@
+*///////////////////////////////////////////////////////////         fibonacci series using parameter               ///////////////////////////////////////////////////*
+
+
+***************************************************************                RTL CODE                  *************************************************
+
+
+
+module series #(parameter N=10)(input clk,rst,output reg [31:0]out,output reg [4:0]index);
+reg [31:0]fib[0:N-1];
+integer i;
+always@(posedge clk or posedge rst)
+	begin
+	if(rst)	begin
+	fib[0]='d0; fib[1]='d1;
+	for(i=2;i<N;i=i+1)
+		begin
+		fib[i]<='d0;
+		end
+		index <= 5'd0;
+      out <= 32'd0;
+	end
+	else 
+		begin
+		fib[0]='d0; fib[1]='d1;
+		for(i=2;i<N;i=i+1)
+		begin
+		fib[i]=fib[i-1]+fib[i-2];
+		end
+		if (index<N)
+			begin
+			out <= fib[index];
+         index <= index + 5'd1;
+			end
+		end
+	end
+endmodule
+
+
+
+
+***********************************************************************              TB CODE            *********************************************************************
+
+
+module tb_fibonacci_series;
+
+    reg clk;
+    reg rst;
+    wire [31:0] fib_out;
+    wire [3:0] index_out;
+
+    series #(20) uut (
+        .clk(clk),
+        .rst(rst),
+        .out(fib_out),
+        .index(index_out)
+    );
+
+    initial begin
+        clk = 0;
+        rst = 1;
+        #5 rst = 0;
+        #200 $stop; 
+    end
+
+    always #5 clk = ~clk;
+
+    initial begin
+        $monitor("Time: %0t | Index: %0d | Fibonacci Output: %0d", $time, index_out, fib_out);
+    end
+
+endmodule
+
