@@ -1,0 +1,91 @@
+////////////////////////////////////////////////////////////////////     LIFO    /////////////////////////////////////////////////////////////////////////
+
+
+
+*********************************************************************          RTL CODE          ********************************************************
+
+
+module lifo(input clk,rst,push_en,pop_en,input [7:0]data,output reg [7:0]out,output reg empty,full);
+	parameter DEPTH=16;
+	reg [7:0]mem[0:DEPTH-1];
+	reg [3:0]pt;
+	always@(posedge clk or posedge rst)
+		begin
+			if(rst)
+				begin
+				empty<=1;full<=0;
+				pt<=0;
+				end
+			else 
+				begin
+					if(push_en && !full)
+						begin
+							mem[pt]<=data;
+							pt=pt+1'b1;
+						end
+					if (pop_en && !empty)
+						begin
+							out<=mem[pt];
+							pt<=pt-1'b1;
+						end
+					empty <=(pt==0);
+					full<=(DEPTH==pt);
+		end
+		end
+endmodule
+
+
+
+
+
+******************************************************************         TB CODE      **********************************************************************
+
+
+
+module lifo_tb;
+
+    reg clk;
+    reg rst;
+    reg push_en;
+    reg pop_en;
+    reg [7:0] data;
+    wire [7:0] out;
+    wire empty;
+    wire full;
+
+    lifo uut (
+        .clk(clk),
+        .rst(rst),
+        .push_en(push_en),
+        .pop_en(pop_en),
+        .data(data),
+        .out(out),
+        .empty(empty),
+        .full(full)
+    );
+
+    initial begin
+        clk = 0;
+        forever #5 clk = ~clk;
+    end
+
+    initial begin
+        rst = 1;
+        push_en = 0;
+        pop_en = 0;
+        data = 8'b0;
+        #10 rst = 0;
+
+        #10 push_en = 1; data = 8'hA1;
+        #10 push_en = 1; data = 8'hB2;
+        #10 push_en = 1; data = 8'hC3;
+        #10 push_en = 0;
+
+        #10 pop_en = 1;
+        #10 pop_en = 1;
+        #10 pop_en = 1;
+        #10 pop_en = 0;
+
+        #10 $finish;
+    end
+endmodule
