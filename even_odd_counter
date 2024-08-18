@@ -1,0 +1,75 @@
+////////////////////////////////////////////////////////////////////////   Even Odd Counter Using enable   ///////////////////////////////////////////////////////////////////////
+
+
+*************************************************************************  RTL CODE   ******************************************************************************************
+
+
+module counter(input clk,rst,sel ,output reg [3:0]out);
+always@(posedge clk or posedge rst)
+	begin
+	if(rst)
+		out<=0;
+	else if(sel)
+		begin
+			if(out%2==0)
+				out<=out+1'b1+1'b1;
+			else
+				out<=out+1'b1;
+		end
+	else if(!sel)
+		begin
+			if(out%2==0)
+				out<=out-1'b1;
+			else
+				out<=out-1'b1-1'b1;
+		end
+end
+endmodule
+		
+
+
+
+
+**********************************************************************************      TB CODE    *******************************************************************************************
+
+module counter1();
+	reg clk,rst,sel;
+	wire [3:0]out;
+counter DUT(clk,rst,sel,out);
+	initial 
+		begin 
+			clk=1'b0;
+			forever 
+			#5  clk=~clk;
+		end
+	task reset;
+		begin
+			@(negedge clk)
+			rst=1'b1;
+			@(negedge clk)
+			rst=1'b0;
+		end
+	endtask
+	task en(input i);
+		begin
+		sel=i;
+		end
+	endtask
+	initial 
+		begin
+		clk=0;
+		reset;
+		en(1);
+		#150;
+		en(0);
+		#100;
+		end
+	initial 
+	   $monitor("time=%t,clk=%d,rst=%d,sel=%d,out=%d",$time,clk,rst,sel,out);
+		initial
+		begin
+		#1000 $finish;
+		end
+endmodule
+
+
