@@ -1,0 +1,65 @@
+////////////////////////////////////////////////////////////////////    8bit_counter_up_down_using_en     /////////////////////////////////////////////////
+
+
+************************************************************************     RTL CODE     *********************************************************************
+
+module bit(input clk,rst,en,output reg [3:0]out);
+	always@(posedge clk or posedge rst)
+		begin
+			if(rst)
+					out<=3'b0;
+			else
+				begin
+					if(en && out<8)
+						out<=out+1'b1;
+					else if(en && out==8)
+						out<=3'b000;
+					else if(!en && out>0)
+						out<=out-1'b1;
+					else if(!en && out==0)
+						out<=3'b111;
+					else 
+						out<=out;
+				end
+			end
+endmodule
+
+
+***********************************************************************   TB CODE   *********************************************************************************
+
+
+module updown8_tb;
+	reg clock,resetn,sel;
+	wire [3:0]out;
+bit uut (clock,resetn,sel,out);
+	initial
+		begin
+			clock=1'b0;
+			forever
+			#5 clock=~clock;
+		end
+	task reset;
+		begin
+		@(negedge clock)
+		resetn=1'b1;
+		@(negedge clock)
+		resetn=1'b0;
+		end
+	endtask
+	task select(input i);
+		begin
+		@(negedge clock)
+		sel=i;
+		end
+	endtask
+	initial begin
+	reset;
+	select(1);
+	#150;
+	select(0);
+	#100 $finish;
+	end
+initial
+$monitor($time,"sel=%b,out=%d",sel,out);
+
+endmodule
