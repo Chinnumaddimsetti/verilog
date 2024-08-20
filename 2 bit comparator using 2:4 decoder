@@ -1,0 +1,78 @@
+////////////////////////////////////////////////////////////////////////    2 bit comparator using 2:4 decoder          //////////////////////////////////////////////////
+
+***********************************************************************       RTL CODE         *****************************************************************
+
+module two_bit_comparator (input wire [1:0] A,input wire [1:0] B,output wire F,output wire G,output wire H );
+
+wire [3:0] decA;  
+wire [3:0] decB;  
+
+	assign decA[0] = (~A[1] & ~A[0]);
+	assign decA[1] = (~A[1] &  A[0]);
+	assign decA[2] = ( A[1] & ~A[0]);
+	assign decA[3] = ( A[1] &  A[0]);
+
+	assign decB[0] = (~B[1] & ~B[0]);
+	assign decB[1] = (~B[1] &  B[0]);
+	assign decB[2] = ( B[1] & ~B[0]);
+	assign decB[3] = ( B[1] &  B[0]);
+
+assign F = (decA[3] & ~decB[3]) | (decA[2] & ~decB[2] & ~decB[3]) | (decA[1] & ~decB[1] & ~decB[2] & ~decB[3]);
+
+assign G = (decA[0] & decB[0]) |(decA[1] & decB[1]) |(decA[2] & decB[2]) |(decA[3] & decB[3]);
+
+assign H = (decB[3] & ~decA[3]) |(decB[2] & ~decA[2] & ~decA[3]) |(decB[1] & ~decA[1] & ~decA[2] & ~decA[3]);
+
+endmodule
+
+
+
+***********************************************************************           TB CODE     *********************************************************************
+
+
+
+module tb_two_bit_comparator;
+
+    reg [1:0] A;
+    reg [1:0] B;
+    wire F;
+    wire G;
+    wire H;
+
+    two_bit_comparator uut (
+        .A(A),
+        .B(B),
+        .F(F),
+        .G(G),
+        .H(H)
+    );
+
+    initial begin
+        A = 2'b00; B = 2'b00;
+        #10;
+        $display("A=%b B=%b | F=%b G=%b H=%b", A, B, F, G, H);
+
+        A = 2'b01; B = 2'b00;
+        #10;
+        $display("A=%b B=%b | F=%b G=%b H=%b", A, B, F, G, H);
+
+        A = 2'b10; B = 2'b01;
+        #10;
+        $display("A=%b B=%b | F=%b G=%b H=%b", A, B, F, G, H);
+
+        A = 2'b11; B = 2'b10;
+        #10;
+        $display("A=%b B=%b | F=%b G=%b H=%b", A, B, F, G, H);
+
+        A = 2'b00; B = 2'b11;
+        #10;
+        $display("A=%b B=%b | F=%b G=%b H=%b", A, B, F, G, H);
+
+        A = 2'b11; B = 2'b11;
+        #10;
+        $display("A=%b B=%b | F=%b G=%b H=%b", A, B, F, G, H);
+
+        $finish;
+    end
+
+endmodule
