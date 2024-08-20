@@ -1,0 +1,135 @@
+*******************************************************************   64*16 overriding 16*64   ***************************************************************
+
+////////////////////////////////////////////////////////////////////////////////////       RTL CODE     /////////////////////////////////////////////////////////////////////
+
+//module ram(input clk,rst,wr_en,rd_en,d_in,output out);
+//	parameter ADD=6,WIDTH=16,LEN=64;
+//	reg [WIDTH-1:0]out;
+//	wire [WIDTH-1:0]din;
+//	wire [ADD-1:0]addr;
+//	reg [WIDTH-1:0]mem[LEN-1:0];
+//	integer  i;
+//	always@(posedge clk)
+//		begin
+//			if(rst)
+//				begin 
+//					for(i=0;i<LEN;i=i+1)
+//						begin
+//						mem[i]<=0;
+//						out<=0;
+//						end
+//				end
+//			else if( wr_en && !rd_en)
+//				begin
+//				mem[addr]<=din;
+//				end
+//			else if(rd_en && !wr_en)
+//				begin
+//				out<=mem[addr];
+//				end
+//			else 
+//				out<=0;
+//		end
+//endmodule
+module ram(
+    input clk,
+    input rst,
+    input wr_en,
+    input rd_en,
+    input [ADD-1:0] addr,
+    input [WIDTH-1:0] d_in,
+    output reg [WIDTH-1:0] out
+);
+    parameter ADD = 6;
+    parameter WIDTH = 16;
+    parameter LEN = 64;
+    
+    reg [WIDTH-1:0] mem[LEN-1:0];
+    integer i;
+
+    always @(posedge clk) begin
+        if (rst) begin 
+            for (i = 0; i < LEN; i = i + 1) begin
+                mem[i] <= 0;
+            end
+            out <= 0;
+        end else if (wr_en && !rd_en) begin
+            mem[addr] <= d_in;
+        end else if (rd_en && !wr_en) begin
+            out <= mem[addr];
+        end else begin
+            out <= 0;
+        end
+    end
+endmodule
+
+
+
+***************************************************************************   TB CODE   *************************************************************
+
+
+module ram_tb;
+
+    reg clk;
+    reg rst;
+    reg wr_en;
+    reg rd_en;
+    reg [3:0] addr;
+    reg [63:0] d_in;
+    wire [63:0] out;
+
+    ram #(
+        .ADD(4),
+        .WIDTH(64),
+        .LEN(16)
+    ) uut (
+        .clk(clk),
+        .rst(rst),
+        .wr_en(wr_en),
+        .rd_en(rd_en),
+        .addr(addr),
+        .d_in(d_in),
+        .out(out)
+    );
+
+    initial begin
+        clk = 0;
+        forever #5 clk = ~clk;
+    end
+
+    initial begin
+        rst = 1;
+        wr_en = 0;
+        rd_en = 0;
+        addr = 0;
+        d_in = 0;
+        #10;
+
+        rst = 0;
+        wr_en = 1;
+        addr = 4'b0001;
+        d_in = 64'h01;
+        #10;
+
+        wr_en = 0;
+        rd_en = 1;
+        #10;
+
+        addr = 4'b0010;
+        wr_en = 1;
+        rd_en = 0;
+        d_in = 64'h02;
+        #10;
+
+        wr_en = 0;
+        rd_en = 1;
+        addr = 4'b0001;
+        #10;
+
+        addr = 4'b0010;
+        #10;
+
+        $stop;
+    end
+
+endmodule
